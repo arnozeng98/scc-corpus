@@ -1,0 +1,23 @@
+{
+    "name": "SCC Criminal Cases Corpus Statistics",
+    "description": "Statistical analysis of the Supreme Court of Canada criminal cases corpus",
+    "generation_date": "2025-03-16",
+    "corpus_overview": {
+        "total_cases": 742,
+        "year_range": "1985-02-21 - 2024-11-15",
+        "total_characters": 1427406,
+        "estimated_tokens": 356722
+    },
+    "case_length": {
+        "average_tokens": 480,
+        "average_characters": 1923,
+        "min_tokens": 0,
+        "min_case": "Rosen v. The Queen",
+        "max_tokens": 9162,
+        "max_case": "R. v. Morelli"
+    },
+    "legal_content": {
+        "total_statutes": 2058,
+        "average_statutes_per_case": 2.7735849056603774
+    }
+}
