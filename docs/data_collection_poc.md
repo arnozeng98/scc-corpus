@@ -124,6 +124,42 @@ For testing purposes, you can limit the number of cases downloaded by modifying 
 perform_search(driver, start_date, end_date, max_cases=10)
 ```
 
+## Checkpoint Recovery System
+
+The system implements a checkpoint recovery mechanism that enables interrupted scraping sessions to be resumed without duplicating work. This is particularly valuable for handling network issues, server timeouts, or when dealing with large datasets.
+
+### Key Features of the Checkpoint Recovery System
+
+1. **State Persistence**: 
+   - All scraped links are continuously saved to `scraped_links.json` after each successful download
+   - This file serves as a checkpoint registry, mapping case URLs to case numbers
+
+2. **Automatic Recovery**:
+   - When the scraper is restarted, it first loads the previously scraped links
+   - All previously downloaded cases are skipped during subsequent runs
+   - The system resumes from where it left off, focusing only on new cases
+
+3. **Incremental Processing**:
+   - Each date range is processed independently, allowing for targeted resumption
+   - If one date range search fails, others can still be completed successfully
+
+4. **Implementation Details**:
+   - The `load_scraped_links()` function retrieves the checkpoint data at startup
+   - `save_scraped_link()` updates the checkpoint file after each case download
+   - `scrape_cases()` checks each link against the checkpoint before processing
+
+### Example Recovery Scenario
+
+1. The system begins scraping with multiple date ranges to process
+2. After successfully downloading 200 cases, the process is interrupted
+3. When restarted, the system:
+   - Loads the 200 already processed cases from `scraped_links.json`
+   - Skips re-downloading these cases
+   - Continues with remaining unprocessed cases
+   - Maintains the same output file structure
+
+This design ensures efficient resource usage, prevents duplication, and provides resilience against interruptions during lengthy scraping processes.
+
 ## Manual Inspection
 
 To manually verify the results:
@@ -217,5 +253,6 @@ A separate statistics file includes:
 - [x] Facts and statutes extraction
 - [x] Original URL recording and addition to annotation data
 - [x] Corpus statistics generation
+- [x] Checkpoint recovery system for interrupted sessions
 - [ ] More accurate token counting (currently using an estimate)
 - [ ] Automated test suite
