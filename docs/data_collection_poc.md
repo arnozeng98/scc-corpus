@@ -130,7 +130,7 @@ The system implements a checkpoint recovery mechanism that enables interrupted s
 
 ### Key Features of the Checkpoint Recovery System
 
-1. **State Persistence**: 
+1. **State Persistence**:
    - All scraped links are continuously saved to `scraped_links.json` after each successful download
    - This file serves as a checkpoint registry, mapping case URLs to case numbers
 
