@@ -5,6 +5,8 @@ from bs4 import BeautifulSoup, Tag
 from config import ANNOTATOR_LOG_FILE, CRIMINAL_CASES_OUTPUT, SCRAPED_LINKS_FILE
 from utils import setup_logging, save_json_file, ensure_dir_exists, load_json_file
 import datetime
+import argparse
+import sys
 
 # Set up logging
 logger = setup_logging(ANNOTATOR_LOG_FILE)
@@ -288,3 +290,61 @@ def annotate_cases(directory: str, output_filename: str) -> List[Dict[str, Any]]
             logger.error(f"Error generating corpus statistics: {e}")
     
     return all_cases
+
+def main():
+    """
+    Main entry point for the annotator script when run as a standalone program.
+    
+    Parses command line arguments to determine input directory and output file path,
+    then runs the annotation process.
+    
+    Usage:
+        python annotator.py --input-dir ./data/raw --output-file ./data/processed/annotation.json
+    """
+    # Set up argument parser
+    parser = argparse.ArgumentParser(description='Annotate case HTML files and generate JSON data.')
+    parser.add_argument('--input-dir', '-i', type=str, required=False,
+                        default=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'data', 'raw'),
+                        help='Directory containing HTML case files')
+    parser.add_argument('--output-file', '-o', type=str, required=False,
+                        default=CRIMINAL_CASES_OUTPUT,
+                        help='Path where to save the JSON output file')
+    parser.add_argument('--verbose', '-v', action='store_true',
+                        help='Print detailed information during processing')
+    
+    # Parse arguments
+    args = parser.parse_args()
+    
+    # Ensure directories exist
+    ensure_dir_exists(os.path.dirname(args.output_file))
+    
+    # Print startup message
+    print(f"Starting annotation process...")
+    print(f"Input directory: {args.input_dir}")
+    print(f"Output file: {args.output_file}")
+    
+    # Check if input directory exists and has HTML files
+    if not os.path.isdir(args.input_dir):
+        print(f"Error: Input directory '{args.input_dir}' does not exist!")
+        return 1
+    
+    html_files = [f for f in os.listdir(args.input_dir) if f.endswith('.html')]
+    if not html_files:
+        print(f"Error: No HTML files found in '{args.input_dir}'!")
+        return 1
+    
+    print(f"Found {len(html_files)} HTML files to process")
+    
+    # Run the annotation process
+    try:
+        cases = annotate_cases(args.input_dir, args.output_file)
+        print(f"Annotation complete. Processed {len(cases)} criminal cases.")
+        print(f"Results saved to '{args.output_file}'")
+        print(f"Statistics saved to '{args.output_file.replace('.json', '_statistics.json')}'")
+        return 0
+    except Exception as e:
+        print(f"Error during annotation process: {e}")
+        return 1
+
+if __name__ == "__main__":
+    sys.exit(main())
